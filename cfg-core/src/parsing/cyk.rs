@@ -8,7 +8,7 @@ use crate::{
     Cfg, Term, Var,
 };
 
-use super::Parser;
+use super::{ParseTree, Parser};
 
 #[derive(Debug, Clone)]
 pub struct CykParser<T: Term> {
@@ -60,7 +60,7 @@ impl<T: Term> CykParser<T> {
 }
 
 impl<T: Term> Parser<Vec<T>> for CykParser<T> {
-    type ParseTree = ();
+    type TermType = T;
 
     fn test(&self, input: Vec<T>) -> bool {
         if input.is_empty() {
@@ -97,7 +97,7 @@ impl<T: Term> Parser<Vec<T>> for CykParser<T> {
         dp[(0, n - 1, self.start.0)]
     }
 
-    fn parse(&self, word: Vec<T>) -> Option<Self::ParseTree> {
+    fn parse(&self, word: Vec<T>) -> Option<ParseTree<T>> {
         todo!()
     }
 }
