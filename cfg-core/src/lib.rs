@@ -108,7 +108,7 @@ pub enum Symbol<T: Term> {
     Term(T),
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Var(pub(crate) usize);
 
 pub trait Term: Debug + Clone + PartialEq + Eq + PartialOrd + Ord + Hash {}
