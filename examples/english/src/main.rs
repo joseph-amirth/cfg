@@ -1,7 +1,7 @@
 use cfg::{grammar, Cfg};
 
 fn main() {
-    let (cfg, vars): (Cfg<&str>, _) = grammar! {
+    let (cfg, vars, _): (Cfg<&str>, _, _) = grammar! {
         noun => "flights" | "flight" | "breeze" | "trip" | "morning"
         verb => "is" | "prefer" | "like" | "need" | "want" | "fly" | "do"
         adjective => "cheapest" | "non-stop" | "first" | "latest" | "other" | "direct"

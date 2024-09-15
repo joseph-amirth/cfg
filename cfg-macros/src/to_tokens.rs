@@ -1,6 +1,7 @@
 use crate::{Grammar, RuleSet, Symbol};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
+use syn::LitStr;
 
 impl ToTokens for Grammar {
     fn to_tokens(&self, tokens: &mut TokenStream) {
@@ -12,11 +13,18 @@ impl ToTokens for Grammar {
         vars.sort();
         vars.dedup();
 
+        let var_lits = vars
+            .iter()
+            .cloned()
+            .map(|ident| LitStr::new(ident.to_string().as_str(), ident.span()))
+            .collect::<Vec<_>>();
+
         let rule_sets = &self.rule_sets;
 
         tokens.append_all(quote!({
             let mut cfg = cfg::Cfg::new();
             #( let #vars = cfg.add_var(); )*
+            #[derive(Debug, Clone)]
             struct Vars {
                 #( #vars: cfg::Var ),*
             }
@@ -25,7 +33,10 @@ impl ToTokens for Grammar {
                 cfg,
                 Vars {
                     #( #vars ),*
-                }
+                },
+                std::collections::HashMap::<&str, cfg::Var>::from([
+                    #(( #var_lits, #vars )),*
+                ])
             )
         }));
     }

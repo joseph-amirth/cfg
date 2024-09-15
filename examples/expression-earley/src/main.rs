@@ -6,7 +6,7 @@ use cfg::{
 };
 
 fn main() {
-    let (cfg, vars) = grammar!(
+    let (cfg, vars, _) = grammar!(
         term => 'A' | 'B' | 'C' | 'D'
         expression1 => expression2 | expression2 '+' expression1 | expression2 '-' expression1
         expression2 => expression3 | expression3 '*' expression2 | expression3 '/' expression2
