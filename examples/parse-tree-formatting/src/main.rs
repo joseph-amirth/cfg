@@ -1,8 +1,6 @@
-use std::io::stdin;
-
 use cfg::{
     grammar,
-    parsing::{EarleyParser, FormatOptions, Parser, ASCII, BOX_DRAWING},
+    parsing::{EarleyParser, FormatOptions, FormatStyle, Parser},
 };
 
 fn main() {
@@ -29,7 +27,7 @@ fn main() {
         parse_tree.fmt_with_options(FormatOptions {
             vars_map,
             indendation: 1,
-            style: BOX_DRAWING,
+            style: FormatStyle::BOX_DRAWING,
         })
     );
 }

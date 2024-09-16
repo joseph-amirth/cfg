@@ -48,19 +48,21 @@ pub struct FormatStyle {
     up_and_right: char,
 }
 
-pub const ASCII: FormatStyle = FormatStyle {
-    horizontal: '-',
-    vertical: '|',
-    vertical_and_right: '|',
-    up_and_right: '`',
-};
+impl FormatStyle {
+    pub const ASCII: Self = Self {
+        horizontal: '-',
+        vertical: '|',
+        vertical_and_right: '|',
+        up_and_right: '`',
+    };
 
-pub const BOX_DRAWING: FormatStyle = FormatStyle {
-    horizontal: '═',
-    vertical: '║',
-    vertical_and_right: '╠',
-    up_and_right: '╚',
-};
+    pub const BOX_DRAWING: Self = Self {
+        horizontal: '═',
+        vertical: '║',
+        vertical_and_right: '╠',
+        up_and_right: '╚',
+    };
+}
 
 impl<'a, T: Term + Display> Display for ParseTreeFormatter<'a, T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -129,7 +131,7 @@ fn fmt_parse_tree_node(
         for _ in 0..options.indendation {
             write!(f, "{}", options.style.horizontal)?;
         }
-        write!(f, "{}", " ");
+        write!(f, "{}", " ")?;
     }
     write!(f, "{}\n", node)?;
     Ok(())

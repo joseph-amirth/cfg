@@ -97,14 +97,13 @@ impl<T: Term> Parser<Vec<T>> for CykParser<T> {
         dp[(0, n - 1, self.start.0)]
     }
 
-    fn parse(&self, word: Vec<T>) -> Option<ParseTree<T>> {
+    fn parse(&self, _word: Vec<T>) -> Option<ParseTree<T>> {
         todo!()
     }
 }
 
 #[derive(Debug)]
 struct Flat3dVec<T> {
-    m: usize,
     n: usize,
     k: usize,
     vec: Vec<T>,
@@ -113,7 +112,6 @@ struct Flat3dVec<T> {
 impl<T: Clone> Flat3dVec<T> {
     fn filled_with(m: usize, n: usize, k: usize, val: T) -> Self {
         Self {
-            m,
             n,
             k,
             vec: vec![val; m * n * k],
