@@ -79,29 +79,6 @@ impl<T: Term> Rule<T> {
     }
 }
 
-/// Trait required to make the macros work nicely.
-pub trait AddTermsFrom<S> {
-    fn add_terms_from(&mut self, source: S);
-}
-
-impl AddTermsFrom<&str> for Vec<Symbol<char>> {
-    fn add_terms_from(&mut self, terms: &str) {
-        self.extend(terms.chars().map(Symbol::Term));
-    }
-}
-
-impl AddTermsFrom<char> for Vec<Symbol<char>> {
-    fn add_terms_from(&mut self, term: char) {
-        self.push(Symbol::Term(term));
-    }
-}
-
-impl<S: ToString> AddTermsFrom<S> for Vec<Symbol<String>> {
-    fn add_terms_from(&mut self, terms_source: S) {
-        self.push(Symbol::Term(terms_source.to_string()));
-    }
-}
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Symbol<T: Term> {
     Var(Var),
