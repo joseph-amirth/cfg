@@ -1,4 +1,4 @@
-use std::io::stdin;
+use std::io::{stdin, stdout, Write};
 
 use cfg::{
     grammar,
@@ -16,6 +16,8 @@ fn main() {
     let earley_parser = EarleyParser::of(vars.expression1, cfg);
 
     loop {
+        print!("Enter an expression: ");
+        stdout().flush().unwrap();
         let input = {
             let mut buffer = String::new();
             stdin().read_line(&mut buffer).unwrap();
@@ -29,5 +31,6 @@ fn main() {
         } else {
             println!("Your word isn't an expression");
         }
+        println!();
     }
 }
