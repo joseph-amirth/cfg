@@ -1,4 +1,4 @@
-use crate::{Grammar, RuleSet, Symbol};
+use crate::{Grammar, GrammarWithActions, RuleSet, RuleSetWithActions, Symbol};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::LitStr;
@@ -71,5 +71,17 @@ impl ToTokens for Symbol {
             }
         };
         tokens.append_all(symbol_tokens);
+    }
+}
+
+impl ToTokens for GrammarWithActions {
+    fn to_tokens(&self, _tokens: &mut TokenStream) {
+        todo!();
+    }
+}
+
+impl ToTokens for RuleSetWithActions {
+    fn to_tokens(&self, _tokens: &mut TokenStream) {
+        todo!();
     }
 }

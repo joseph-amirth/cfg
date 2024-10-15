@@ -1,4 +1,4 @@
-use std::{char, fmt::Debug, hash::Hash};
+use std::{fmt::Debug, hash::Hash};
 
 use rand::{rngs::ThreadRng, seq::IteratorRandom};
 
