@@ -1,4 +1,4 @@
-use std::{fmt::Debug, hash::Hash};
+use std::{fmt::Debug, hash::Hash, rc::Rc};
 
 use rand::{rngs::ThreadRng, seq::IteratorRandom};
 
@@ -8,7 +8,7 @@ pub mod parsing;
 #[derive(Debug, Clone)]
 pub struct Cfg<T: Term> {
     start_var: Var,
-    var_names: Vec<String>,
+    var_names: Vec<Rc<str>>,
     rules: Vec<Rule<T>>,
 }
 
@@ -64,12 +64,12 @@ impl<T: Term> Cfg<T> {
 }
 
 pub struct CfgBuilder<T: Term> {
-    var_names: Vec<String>,
+    var_names: Vec<Rc<str>>,
     rules: Vec<Rule<T>>,
 }
 
 impl<T: Term> CfgBuilder<T> {
-    pub fn add_var(&mut self, name: String) -> Var {
+    pub fn add_var(&mut self, name: Rc<str>) -> Var {
         let var = Var(self.var_names.len());
         self.var_names.push(name);
         var

@@ -4,7 +4,7 @@ mod test_cases;
 
 #[test]
 fn earley_parser_tests_brkt_seqs() {
-    let (dyck_grammar, _) = grammar!(
+    let dyck_grammar = grammar!(
         start => '(' ')'
         start => '(' start ')'
         start => start start
@@ -25,7 +25,7 @@ fn earley_parser_tests_brkt_seqs() {
 
 #[test]
 fn earley_parser_tests_expressions() {
-    let (cfg, _) = grammar!(
+    let cfg = grammar!(
         expression1 => expression2 | expression2 '+' expression1 | expression2 '-' expression1
         expression2 => expression3 | expression3 '*' expression2 | expression3 '/' expression2
         expression3 => term | '(' expression1 ')'

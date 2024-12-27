@@ -27,12 +27,7 @@ impl ToTokens for Grammar {
             let mut cfg_builder = cfg::Cfg::builder();
             #( let #vars = cfg_builder.add_var(#var_lits.into()); )*
             #( #rule_sets )*
-            (
-                cfg_builder.build(#start_var),
-                std::collections::HashMap::<&str, cfg::Var>::from([
-                    #(( #var_lits, #vars )),*
-                ])
-            )
+            cfg_builder.build(#start_var)
         }));
     }
 }

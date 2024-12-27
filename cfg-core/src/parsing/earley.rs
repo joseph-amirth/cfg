@@ -1,22 +1,32 @@
+use std::rc::Rc;
+
 use crate::{Cfg, Rule, Symbol, Term, Var};
 
 use super::{ParseTree, ParsedSymbol, Parser};
 
 pub struct EarleyParser<T: Term> {
     start_var: Var,
+    var_names: Vec<Rc<str>>,
     rules_by_var: Vec<Vec<Vec<Symbol<T>>>>,
 }
 
 impl<T: Term> EarleyParser<T> {
     pub fn of(cfg: Cfg<T>) -> Self {
-        let start_var = cfg.start_var;
         let mut rules_by_var = vec![vec![]; cfg.n_vars()];
-        for Rule { head, body } in cfg.rules {
+
+        let Cfg {
+            start_var,
+            var_names,
+            rules,
+        } = cfg;
+
+        for Rule { head, body } in rules {
             rules_by_var[head.0].push(body);
         }
 
         Self {
             start_var,
+            var_names,
             rules_by_var,
         }
     }
@@ -144,6 +154,7 @@ impl<T: Term> Parser<Vec<T>> for EarleyParser<T> {
 
         Some(
             ParseTreeBuilder {
+                var_names: &self.var_names,
                 word,
                 states,
                 parents,
@@ -153,19 +164,24 @@ impl<T: Term> Parser<Vec<T>> for EarleyParser<T> {
     }
 }
 
-struct ParseTreeBuilder<T: Term> {
+struct ParseTreeBuilder<'a, T: Term> {
+    var_names: &'a Vec<Rc<str>>,
     word: Vec<T>,
     states: Vec<Vec<State>>,
     parents: Vec<Vec<Parent>>,
 }
 
-impl<T: Term> ParseTreeBuilder<T> {
+impl<T: Term> ParseTreeBuilder<'_, T> {
     pub fn build(&self, r: usize, i: usize) -> ParseTree<T> {
         match &self.parents[r][i] {
-            Parent::None => ParseTree {
-                root: self.states[r][i].head,
-                children: Vec::new(),
-            },
+            Parent::None => {
+                let root_var = self.states[r][i].head;
+                ParseTree {
+                    root_var,
+                    root_var_name: self.var_names[root_var.0].to_owned(),
+                    children: Vec::new(),
+                }
+            }
             Parent::Term(k) => {
                 let mut parse_tree = self.build(r - 1, *k);
                 parse_tree

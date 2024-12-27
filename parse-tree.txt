@@ -1,0 +1,49 @@
+expr
+╚═ sum
+   ╠═ product
+   ║  ╚═ term
+   ║     ╚═ unit
+   ║        ╚═ A
+   ╠═ +
+   ╚═ sum
+      ╠═ product
+      ║  ╠═ term
+      ║  ║  ╚═ unit
+      ║  ║     ╚═ B
+      ║  ╠═ *
+      ║  ╚═ product
+      ║     ╚═ term
+      ║        ╠═ (
+      ║        ╠═ sum
+      ║        ║  ╠═ product
+      ║        ║  ║  ╚═ term
+      ║        ║  ║     ╚═ unit
+      ║        ║  ║        ╚═ C
+      ║        ║  ╠═ -
+      ║        ║  ╚═ sum
+      ║        ║     ╚═ product
+      ║        ║        ╠═ term
+      ║        ║        ║  ╚═ unit
+      ║        ║        ║     ╚═ D
+      ║        ║        ╠═ /
+      ║        ║        ╚═ product
+      ║        ║           ╚═ term
+      ║        ║              ╚═ unit
+      ║        ║                 ╚═ E
+      ║        ╚═ )
+      ╠═ +
+      ╚═ sum
+         ╚═ product
+            ╠═ term
+            ║  ╚═ unit
+            ║     ╚═ F
+            ╠═ *
+            ╚═ product
+               ╚═ term
+                  ╠═ (
+                  ╠═ sum
+                  ║  ╚═ product
+                  ║     ╚═ term
+                  ║        ╚═ unit
+                  ║           ╚═ G
+                  ╚═ )

@@ -1,7 +1,7 @@
 use cfg::grammar;
 
 fn main() {
-    let (cfg, _) = grammar! {
+    let cfg = grammar! {
         sentence => noun_phrase verb_phrase
         noun_phrase => pronoun | proper_noun | determiner nominal
         nominal => nominal noun | noun

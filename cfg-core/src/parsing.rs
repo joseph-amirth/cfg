@@ -1,7 +1,7 @@
 mod cyk;
 mod earley;
 
-use std::{collections::HashMap, fmt::Display};
+use std::{fmt::Display, rc::Rc};
 
 pub use cyk::*;
 pub use earley::*;
@@ -20,7 +20,8 @@ pub trait Parser<W> {
 
 #[derive(Debug, Clone)]
 pub struct ParseTree<T: Term> {
-    root: Var,
+    root_var: Var,
+    root_var_name: Rc<str>,
     children: Vec<ParsedSymbol<T>>,
 }
 
@@ -32,11 +33,10 @@ pub enum ParsedSymbol<T: Term> {
 
 pub struct ParseTreeFormatter<'a, T: Term> {
     parse_tree: &'a ParseTree<T>,
-    options: FormatOptions<'a>,
+    options: FormatOptions,
 }
 
-pub struct FormatOptions<'a> {
-    pub vars_map: &'a HashMap<Var, &'a str>,
+pub struct FormatOptions {
     pub indendation: usize,
     pub style: FormatStyle,
 }
@@ -73,7 +73,7 @@ impl<'a, T: Term + Display> Display for ParseTreeFormatter<'a, T> {
 }
 
 impl<T: Term + Display> ParseTree<T> {
-    pub fn fmt_with_options<'a>(&'a self, options: FormatOptions<'a>) -> ParseTreeFormatter<'a, T> {
+    pub fn fmt_with_options<'a>(&'a self, options: FormatOptions) -> ParseTreeFormatter<'a, T> {
         ParseTreeFormatter {
             parse_tree: &self,
             options,
@@ -86,7 +86,8 @@ impl<T: Term + Display> ParseTree<T> {
         bars: &mut Vec<bool>,
         f: &mut std::fmt::Formatter<'_>,
     ) -> std::fmt::Result {
-        fmt_parse_tree_node(&options.vars_map[&self.root], options, bars, f)?;
+        fmt_parse_tree_node(&self.root_var_name, options, bars, f)?;
+        // fmt_parse_tree_node(&options.vars_map[&self.root_var], options, bars, f)?;
         for (i, child) in self.children.iter().enumerate() {
             let is_last_child = i + 1 == self.children.len();
             bars.push(!is_last_child);

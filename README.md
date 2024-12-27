@@ -15,20 +15,22 @@ use cfg::{
 };
 
 fn main() {
-    let (cfg, vars, _) = grammar!(
-        term => 'A' | 'B' | 'C' | 'D'
-        expression1 => expression2 | expression2 '+' expression1 | expression2 '-' expression1
-        expression2 => expression3 | expression3 '*' expression2 | expression3 '/' expression2
-        expression3 => term | '(' expression1 ')'
+    let cfg = grammar!(
+        expr => sum
+        sum => product | product '+' sum | product '-' sum
+        product => term | term '*' product | term '/' product
+        term => unit | '(' sum ')'
+        unit => 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G'
     );
 
-    let cyk_parser = CykParser::of(cfg, vars.expression1);
+    let cyk_parser = CykParser::of(cfg);
 
-    let word: Vec<char> = ...;
-    if cyk_parser.test(word) {
-        println!("Your word is an expression!");
+    let expression = "A+B*(C-D/E)+F*(G)";
+    let expression: Vec<char> = expression.chars().collect();
+    if cyk_parser.test(expression) {
+        println!("It is an expression!");
     } else {
-        println!("Your word isn't an expression");
+        println!("It isn't an expression");
     }
 }
 ```
@@ -43,16 +45,15 @@ use cfg::{
 };
 
 fn main() {
-    let (cfg, vars, map) = grammar!(
-        term => 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G'
-        expression1 => expression2 | expression2 '+' expression1 | expression2 '-' expression1
-        expression2 => expression3 | expression3 '*' expression2 | expression3 '/' expression2
-        expression3 => term | '(' expression1 ')'
+    let cfg = grammar!(
+        expr => sum
+        sum => product | product '+' sum | product '-' sum
+        product => term | term '*' product | term '/' product
+        term => unit | '(' sum ')'
+        unit => 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G'
     );
 
-    let vars_map = &map.into_iter().map(|(k, v)| (v, k)).collect();
-
-    let earley_parser = EarleyParser::of(vars.expression1, cfg);
+    let earley_parser = EarleyParser::of(cfg);
 
     let expression: &str = "A+B*(C-D/E)+F*(G)";
     let expression: Vec<char> = expression.chars().collect();
@@ -64,7 +65,6 @@ fn main() {
     print!(
         "{}",
         parse_tree.fmt_with_options(FormatOptions {
-            vars_map,
             indendation: 1,
             style: FormatStyle::BOX_DRAWING,
         })
@@ -75,52 +75,53 @@ fn main() {
 The output:
 
 ```
-expression1
-╠═ expression2
-║  ╚═ expression3
-║     ╚═ term
-║        ╚═ A
-╠═ +
-╚═ expression1
-   ╠═ expression2
-   ║  ╠═ expression3
-   ║  ║  ╚═ term
-   ║  ║     ╚═ B
-   ║  ╠═ *
-   ║  ╚═ expression2
-   ║     ╚═ expression3
-   ║        ╠═ (
-   ║        ╠═ expression1
-   ║        ║  ╠═ expression2
-   ║        ║  ║  ╚═ expression3
-   ║        ║  ║     ╚═ term
-   ║        ║  ║        ╚═ C
-   ║        ║  ╠═ -
-   ║        ║  ╚═ expression1
-   ║        ║     ╚═ expression2
-   ║        ║        ╠═ expression3
-   ║        ║        ║  ╚═ term
-   ║        ║        ║     ╚═ D
-   ║        ║        ╠═ /
-   ║        ║        ╚═ expression2
-   ║        ║           ╚═ expression3
-   ║        ║              ╚═ term
-   ║        ║                 ╚═ E
-   ║        ╚═ )
+expr
+╚═ sum
+   ╠═ product
+   ║  ╚═ term
+   ║     ╚═ unit
+   ║        ╚═ A
    ╠═ +
-   ╚═ expression1
-      ╚═ expression2
-         ╠═ expression3
-         ║  ╚═ term
-         ║     ╚═ F
-         ╠═ *
-         ╚═ expression2
-            ╚═ expression3
-               ╠═ (
-               ╠═ expression1
-               ║  ╚═ expression2
-               ║     ╚═ expression3
-               ║        ╚═ term
-               ║           ╚═ G
-               ╚═ )
+   ╚═ sum
+      ╠═ product
+      ║  ╠═ term
+      ║  ║  ╚═ unit
+      ║  ║     ╚═ B
+      ║  ╠═ *
+      ║  ╚═ product
+      ║     ╚═ term
+      ║        ╠═ (
+      ║        ╠═ sum
+      ║        ║  ╠═ product
+      ║        ║  ║  ╚═ term
+      ║        ║  ║     ╚═ unit
+      ║        ║  ║        ╚═ C
+      ║        ║  ╠═ -
+      ║        ║  ╚═ sum
+      ║        ║     ╚═ product
+      ║        ║        ╠═ term
+      ║        ║        ║  ╚═ unit
+      ║        ║        ║     ╚═ D
+      ║        ║        ╠═ /
+      ║        ║        ╚═ product
+      ║        ║           ╚═ term
+      ║        ║              ╚═ unit
+      ║        ║                 ╚═ E
+      ║        ╚═ )
+      ╠═ +
+      ╚═ sum
+         ╚═ product
+            ╠═ term
+            ║  ╚═ unit
+            ║     ╚═ F
+            ╠═ *
+            ╚═ product
+               ╚═ term
+                  ╠═ (
+                  ╠═ sum
+                  ║  ╚═ product
+                  ║     ╚═ term
+                  ║        ╚═ unit
+                  ║           ╚═ G
+                  ╚═ )
 ```

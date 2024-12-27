@@ -6,11 +6,12 @@ use cfg::{
 };
 
 fn main() {
-    let (cfg, _) = grammar!(
-        expression1 => expression2 | expression2 '+' expression1 | expression2 '-' expression1
-        expression2 => expression3 | expression3 '*' expression2 | expression3 '/' expression2
-        expression3 => term | '(' expression1 ')'
-        term => 'A' | 'B' | 'C' | 'D'
+    let cfg = grammar!(
+        expr => sum
+        sum => product | product '+' sum | product '-' sum
+        product => term | term '*' product | term '/' product
+        term => unit | '(' sum ')'
+        unit => 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G'
     );
 
     let earley_parser = EarleyParser::of(cfg);
