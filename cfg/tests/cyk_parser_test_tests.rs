@@ -1,4 +1,4 @@
-use cfg::{grammar, parsing::CykParser, parsing::Parser};
+use cfg::{grammar, parse::CykParser, parse::Parser};
 
 mod test_cases;
 

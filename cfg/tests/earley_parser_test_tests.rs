@@ -1,4 +1,4 @@
-use cfg::{grammar, parsing::EarleyParser, parsing::Parser};
+use cfg::{grammar, parse::EarleyParser, parse::Parser};
 
 mod test_cases;
 

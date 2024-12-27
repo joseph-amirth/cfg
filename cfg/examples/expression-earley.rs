@@ -2,7 +2,7 @@ use std::io::{stdin, stdout, Write};
 
 use cfg::{
     grammar,
-    parsing::{EarleyParser, Parser},
+    parse::{EarleyParser, Parser},
 };
 
 fn main() {

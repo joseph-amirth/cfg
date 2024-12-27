@@ -1,6 +1,6 @@
 use cfg::{
     grammar,
-    parsing::{EarleyParser, FormatOptions, FormatStyle, Parser},
+    parse::{EarleyParser, FormatOptions, FormatStyle, Parser},
 };
 
 fn main() {
