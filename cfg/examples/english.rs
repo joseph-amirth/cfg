@@ -1,7 +1,12 @@
-use cfg::{grammar, Cfg};
+use cfg::grammar;
 
 fn main() {
-    let (cfg, vars, _): (Cfg<&str>, _, _) = grammar! {
+    let (cfg, _) = grammar! {
+        sentence => noun_phrase verb_phrase
+        noun_phrase => pronoun | proper_noun | determiner nominal
+        nominal => nominal noun | noun
+        verb_phrase => verb | verb noun_phrase | verb noun_phrase prep_phrase | verb prep_phrase
+        prep_phrase => preposition noun_phrase
         noun => "flights" | "flight" | "breeze" | "trip" | "morning"
         verb => "is" | "prefer" | "like" | "need" | "want" | "fly" | "do"
         adjective => "cheapest" | "non-stop" | "first" | "latest" | "other" | "direct"
@@ -10,11 +15,6 @@ fn main() {
         determiner => "the" | "a" | "an" | "this" | "these" | "that"
         preposition => "from" | "to" | "on" | "near" | "in"
         conjunction => "and" | "or" | "but"
-        sentence => noun_phrase verb_phrase
-        noun_phrase => pronoun | proper_noun | determiner nominal
-        nominal => nominal noun | noun
-        verb_phrase => verb | verb noun_phrase | verb noun_phrase prep_phrase | verb prep_phrase
-        prep_phrase => preposition noun_phrase
     };
 
     let sentence_count = 10;
@@ -23,6 +23,6 @@ fn main() {
         sentence_count
     );
     for _ in 0..sentence_count {
-        println!("{:?}", cfg.random_word(vars.sentence));
+        println!("{:?}", cfg.random_word());
     }
 }

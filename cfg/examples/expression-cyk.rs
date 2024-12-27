@@ -2,18 +2,18 @@ use std::io::{stdin, stdout, Write};
 
 use cfg::{
     grammar,
-    parsing::{EarleyParser, Parser},
+    parsing::{CykParser, Parser},
 };
 
 fn main() {
-    let (cfg, vars, _) = grammar!(
-        term => 'A' | 'B' | 'C' | 'D'
+    let (cfg, _) = grammar!(
         expression1 => expression2 | expression2 '+' expression1 | expression2 '-' expression1
         expression2 => expression3 | expression3 '*' expression2 | expression3 '/' expression2
         expression3 => term | '(' expression1 ')'
+        term => 'A' | 'B' | 'C' | 'D'
     );
 
-    let earley_parser = EarleyParser::of(vars.expression1, cfg);
+    let cyk_parser = CykParser::of(cfg);
 
     loop {
         print!("Enter an expression: ");
@@ -26,7 +26,7 @@ fn main() {
         };
 
         let word: Vec<char> = input.chars().collect();
-        if earley_parser.test(word) {
+        if cyk_parser.test(word) {
             println!("Your word is an expression!");
         } else {
             println!("Your word isn't an expression");

@@ -10,6 +10,8 @@ use crate::{
 
 use super::{ParseTree, Parser};
 
+// TODO: Implement the simpler CYK. This will allow recovering parse trees in the original grammar
+// rather than a derived grammar
 #[derive(Debug, Clone)]
 pub struct CykParser<T: Term> {
     start: Var,
@@ -19,8 +21,9 @@ pub struct CykParser<T: Term> {
 }
 
 impl<T: Term> CykParser<T> {
-    pub fn of(cfg: Cfg<T>, start: Var) -> Self {
-        Self::of_cnf(Cnf::of(cfg), start)
+    pub fn of(cfg: Cfg<T>) -> Self {
+        let start_var = cfg.start_var.clone();
+        Self::of_cnf(Cnf::of(cfg), start_var)
     }
 
     pub fn of_cnf(

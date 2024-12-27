@@ -7,32 +7,28 @@ pub mod parsing;
 
 #[derive(Debug, Clone)]
 pub struct Cfg<T: Term> {
-    vars: usize,
+    start_var: Var,
+    var_names: Vec<String>,
     rules: Vec<Rule<T>>,
 }
 
 impl<T: Term> Cfg<T> {
-    pub fn new() -> Self {
-        Self {
-            vars: 0,
+    pub fn builder() -> CfgBuilder<T> {
+        CfgBuilder {
+            var_names: Vec::new(),
             rules: Vec::new(),
         }
     }
 
-    pub fn add_var(&mut self) -> Var {
-        let var = self.vars;
-        self.vars += 1;
-        Var(var)
+    pub fn to_builder(self) -> CfgBuilder<T> {
+        let Self {
+            var_names, rules, ..
+        } = self;
+        CfgBuilder { var_names, rules }
     }
 
-    pub fn add_rule(&mut self, rule: Rule<T>) {
-        self.rules.push(rule);
-    }
-
-    pub fn add_rules(&mut self, rules: impl IntoIterator<Item = Rule<T>>) {
-        for rule in rules {
-            self.add_rule(rule);
-        }
+    pub fn n_vars(&self) -> usize {
+        self.var_names.len()
     }
 
     pub fn rules(&self, var: Var) -> impl Iterator<Item = &Rule<T>> {
@@ -43,8 +39,8 @@ impl<T: Term> Cfg<T> {
     ///
     /// **Warning**: The distribution of words is not guaranteed. It is not even
     /// guaranteed that this function terminates.
-    pub fn random_word(&self, var: Var) -> Vec<T> {
-        self.random_word_impl(var, &mut rand::thread_rng())
+    pub fn random_word(&self) -> Vec<T> {
+        self.random_word_impl(self.start_var, &mut rand::thread_rng())
     }
 
     fn random_word_impl(&self, var: Var, rng: &mut ThreadRng) -> Vec<T> {
@@ -64,6 +60,40 @@ impl<T: Term> Cfg<T> {
         }
 
         word
+    }
+}
+
+pub struct CfgBuilder<T: Term> {
+    var_names: Vec<String>,
+    rules: Vec<Rule<T>>,
+}
+
+impl<T: Term> CfgBuilder<T> {
+    pub fn add_var(&mut self, name: String) -> Var {
+        let var = Var(self.var_names.len());
+        self.var_names.push(name);
+        var
+    }
+
+    pub fn add_rule(&mut self, rule: Rule<T>) -> &mut Self {
+        self.rules.push(rule);
+        self
+    }
+
+    pub fn add_rules(&mut self, rules: impl IntoIterator<Item = Rule<T>>) -> &mut Self {
+        for rule in rules {
+            self.add_rule(rule);
+        }
+        self
+    }
+
+    pub fn build(self, start_var: Var) -> Cfg<T> {
+        let Self { var_names, rules } = self;
+        Cfg {
+            start_var,
+            var_names,
+            rules,
+        }
     }
 }
 

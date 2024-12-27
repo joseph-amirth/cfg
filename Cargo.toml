@@ -1,4 +1,4 @@
 [workspace]
-members = ["cfg", "cfg-*", "examples/*"]
+members = ["cfg", "cfg-*"]
 default-members = ["cfg", "cfg-*"]
 resolver = "2"

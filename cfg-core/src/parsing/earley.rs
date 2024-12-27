@@ -3,19 +3,20 @@ use crate::{Cfg, Rule, Symbol, Term, Var};
 use super::{ParseTree, ParsedSymbol, Parser};
 
 pub struct EarleyParser<T: Term> {
-    start: Var,
+    start_var: Var,
     rules_by_var: Vec<Vec<Vec<Symbol<T>>>>,
 }
 
 impl<T: Term> EarleyParser<T> {
-    pub fn of(start: Var, cfg: Cfg<T>) -> Self {
-        let mut rules_by_var = vec![vec![]; cfg.vars];
+    pub fn of(cfg: Cfg<T>) -> Self {
+        let start_var = cfg.start_var;
+        let mut rules_by_var = vec![vec![]; cfg.n_vars()];
         for Rule { head, body } in cfg.rules {
             rules_by_var[head.0].push(body);
         }
 
         Self {
-            start,
+            start_var,
             rules_by_var,
         }
     }
@@ -26,10 +27,10 @@ impl<T: Term> EarleyParser<T> {
         let mut states: Vec<Vec<State>> = vec![Vec::new(); n + 1];
         let mut parents: Vec<Vec<Parent>> = vec![Vec::new(); n + 1];
 
-        for (i, _) in self.rules_by_var[self.start.0].iter().enumerate() {
+        for (i, _) in self.rules_by_var[self.start_var.0].iter().enumerate() {
             states[0].push(State {
                 l: 0,
-                head: self.start,
+                head: self.start_var,
                 body_idx: i,
                 parsed: 0,
             });
@@ -122,19 +123,22 @@ impl<T: Term> Parser<Vec<T>> for EarleyParser<T> {
         let n = word.len();
         let (states, _) = self.attempt_parse(&word);
 
-        states[n]
-            .iter()
-            .any(|state| state.l == 0 && state.head == self.start)
+        states[n].iter().any(|state| {
+            state.head == self.start_var
+                && state.l == 0
+                && state.parsed == self.rules_by_var[self.start_var.0][state.body_idx].len()
+        })
     }
 
     fn parse(&self, word: Vec<T>) -> Option<ParseTree<T>> {
         let n = word.len();
         let (states, parents) = self.attempt_parse(&word);
 
-        let Some(final_state_pos) = states[n]
-            .iter()
-            .position(|state| state.l == 0 && state.head == self.start)
-        else {
+        let Some(final_state_pos) = states[n].iter().position(|state| {
+            state.head == self.start_var
+                && state.l == 0
+                && state.parsed == self.rules_by_var[self.start_var.0][state.body_idx].len()
+        }) else {
             return None;
         };
 

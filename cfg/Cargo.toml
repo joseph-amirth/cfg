@@ -8,7 +8,3 @@ edition = "2021"
 [dependencies]
 cfg-core = { path = "../cfg-core" }
 cfg-macros = { path = "../cfg-macros" }
-
-[[test]]
-name = "tests"
-path = "tests/cnf_test.rs"

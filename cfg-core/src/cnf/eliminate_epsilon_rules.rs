@@ -43,10 +43,10 @@ pub fn eliminate_epsilon_rules<T: Term>(cfg: Cfg<T>) -> WeakCnf<T> {
 }
 
 fn get_nullable_nonterminals<T: Term>(cfg: &Cfg<T>) -> Vec<bool> {
-    let mut nullable = vec![false; cfg.vars];
+    let mut nullable = vec![false; cfg.n_vars()];
     let mut queue = VecDeque::<Var>::new();
 
-    let mut dependant_rules: Vec<Vec<usize>> = vec![vec![]; cfg.vars];
+    let mut dependant_rules: Vec<Vec<usize>> = vec![vec![]; cfg.n_vars()];
 
     for (index, rule) in cfg.rules.iter().enumerate() {
         if rule.body.is_empty() {

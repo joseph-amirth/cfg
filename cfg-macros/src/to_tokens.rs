@@ -10,6 +10,8 @@ impl ToTokens for Grammar {
             vars.push(&rule_set.head);
         }
 
+        let start_var = vars.first().unwrap().to_owned();
+
         vars.sort();
         vars.dedup();
 
@@ -22,18 +24,11 @@ impl ToTokens for Grammar {
         let rule_sets = &self.rule_sets;
 
         tokens.append_all(quote!({
-            let mut cfg = cfg::Cfg::new();
-            #( let #vars = cfg.add_var(); )*
-            #[derive(Debug, Clone)]
-            struct Vars {
-                #( #vars: cfg::Var ),*
-            }
+            let mut cfg_builder = cfg::Cfg::builder();
+            #( let #vars = cfg_builder.add_var(#var_lits.into()); )*
             #( #rule_sets )*
             (
-                cfg,
-                Vars {
-                    #( #vars ),*
-                },
+                cfg_builder.build(#start_var),
                 std::collections::HashMap::<&str, cfg::Var>::from([
                     #(( #var_lits, #vars )),*
                 ])
@@ -49,7 +44,7 @@ impl ToTokens for RuleSet {
 
         tokens.append_all(quote!(
             #({
-                cfg.add_rule(
+                cfg_builder.add_rule(
                     cfg::Rule::new(
                         #head,
                         vec![#( #bodies ),*]

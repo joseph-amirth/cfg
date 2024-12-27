@@ -4,16 +4,16 @@ use cfg::{
 };
 
 fn main() {
-    let (cfg, vars, map) = grammar!(
-        term => 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G'
+    let (cfg, map) = grammar!(
         expression1 => expression2 | expression2 '+' expression1 | expression2 '-' expression1
         expression2 => expression3 | expression3 '*' expression2 | expression3 '/' expression2
         expression3 => term | '(' expression1 ')'
+        term => 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G'
     );
 
     let vars_map = &map.into_iter().map(|(k, v)| (v, k)).collect();
 
-    let earley_parser = EarleyParser::of(vars.expression1, cfg);
+    let earley_parser = EarleyParser::of(cfg);
 
     let expression: &str = "A+B*(C-D/E)+F*(G)";
     let expression: Vec<char> = expression.chars().collect();
