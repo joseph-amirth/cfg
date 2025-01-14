@@ -7,7 +7,8 @@ use super::{ParseTree, ParsedSymbol, Parser};
 pub struct EarleyParser<T: Term> {
     start_var: Var,
     var_names: Vec<Rc<str>>,
-    rules_by_var: Vec<Vec<Vec<Symbol<T>>>>,
+    rules: Vec<Rule<T>>,
+    rules_by_var: Vec<Vec<usize>>,
 }
 
 impl<T: Term> EarleyParser<T> {
@@ -20,13 +21,14 @@ impl<T: Term> EarleyParser<T> {
             rules,
         } = cfg;
 
-        for Rule { head, body } in rules {
-            rules_by_var[head.0].push(body);
+        for (i, rule) in rules.iter().enumerate() {
+            rules_by_var[rule.head.0].push(i);
         }
 
         Self {
             start_var,
             var_names,
+            rules,
             rules_by_var,
         }
     }
@@ -37,11 +39,10 @@ impl<T: Term> EarleyParser<T> {
         let mut states: Vec<Vec<State>> = vec![Vec::new(); n + 1];
         let mut parents: Vec<Vec<Parent>> = vec![Vec::new(); n + 1];
 
-        for (i, _) in self.rules_by_var[self.start_var.0].iter().enumerate() {
+        for rule_idx in self.rules_by_var[self.start_var.0].iter().cloned() {
             states[0].push(State {
                 l: 0,
-                head: self.start_var,
-                body_idx: i,
+                rule_idx,
                 parsed: 0,
             });
             parents[0].push(Parent::None);
@@ -52,18 +53,18 @@ impl<T: Term> EarleyParser<T> {
             while i < states[r].len() {
                 let State {
                     l,
-                    head,
-                    body_idx,
+                    rule_idx,
                     parsed,
                 } = states[r][i];
 
-                let body = &self.rules_by_var[head.0][body_idx];
+                let head = self.rules[rule_idx].head;
+                let body = &self.rules[rule_idx].body;
 
                 if parsed == body.len() {
                     let mut j = 0;
                     while j < states[l].len() {
                         let state = states[l][j];
-                        let body = &self.rules_by_var[state.head.0][state.body_idx];
+                        let body = &self.rules[state.rule_idx].body;
                         if state.parsed == body.len() {
                             j += 1;
                             continue;
@@ -90,11 +91,10 @@ impl<T: Term> EarleyParser<T> {
 
                 match &body[parsed] {
                     Symbol::Var(var) => {
-                        for (i, _) in self.rules_by_var[var.0].iter().enumerate() {
+                        for rule_idx in self.rules_by_var[var.0].iter().cloned() {
                             let state = State {
                                 l: r,
-                                head: *var,
-                                body_idx: i,
+                                rule_idx,
                                 parsed: 0,
                             };
                             if !states[r].contains(&state) {
@@ -107,8 +107,7 @@ impl<T: Term> EarleyParser<T> {
                         if r < n && word[r] == *term {
                             let state = State {
                                 l,
-                                head,
-                                body_idx,
+                                rule_idx,
                                 parsed: parsed + 1,
                             };
                             if !states[r + 1].contains(&state) {
@@ -134,9 +133,9 @@ impl<T: Term> Parser<Vec<T>> for EarleyParser<T> {
         let (states, _) = self.attempt_parse(&word);
 
         states[n].iter().any(|state| {
-            state.head == self.start_var
+            self.rules[state.rule_idx].head == self.start_var
                 && state.l == 0
-                && state.parsed == self.rules_by_var[self.start_var.0][state.body_idx].len()
+                && state.parsed == self.rules[state.rule_idx].body.len()
         })
     }
 
@@ -145,16 +144,16 @@ impl<T: Term> Parser<Vec<T>> for EarleyParser<T> {
         let (states, parents) = self.attempt_parse(&word);
 
         let Some(final_state_pos) = states[n].iter().position(|state| {
-            state.head == self.start_var
+            self.rules[state.rule_idx].head == self.start_var
                 && state.l == 0
-                && state.parsed == self.rules_by_var[self.start_var.0][state.body_idx].len()
+                && state.parsed == self.rules[state.rule_idx].body.len()
         }) else {
             return None;
         };
 
         Some(
             ParseTreeBuilder {
-                var_names: &self.var_names,
+                parser: &self,
                 word,
                 states,
                 parents,
@@ -165,7 +164,7 @@ impl<T: Term> Parser<Vec<T>> for EarleyParser<T> {
 }
 
 struct ParseTreeBuilder<'a, T: Term> {
-    var_names: &'a Vec<Rc<str>>,
+    parser: &'a EarleyParser<T>,
     word: Vec<T>,
     states: Vec<Vec<State>>,
     parents: Vec<Vec<Parent>>,
@@ -175,10 +174,12 @@ impl<T: Term> ParseTreeBuilder<'_, T> {
     pub fn build(&self, r: usize, i: usize) -> ParseTree<T> {
         match &self.parents[r][i] {
             Parent::None => {
-                let root_var = self.states[r][i].head;
+                let rule_idx = self.states[r][i].rule_idx;
+                let root_var = self.parser.rules[rule_idx].head;
                 ParseTree {
                     root_var,
-                    root_var_name: self.var_names[root_var.0].to_owned(),
+                    root_var_name: self.parser.var_names[root_var.0].to_owned(),
+                    rule_idx,
                     children: Vec::new(),
                 }
             }
@@ -204,8 +205,7 @@ impl<T: Term> ParseTreeBuilder<'_, T> {
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 struct State {
     l: usize,
-    head: Var,
-    body_idx: usize,
+    rule_idx: usize,
     parsed: usize,
 }
 

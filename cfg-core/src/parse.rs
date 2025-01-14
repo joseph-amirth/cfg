@@ -22,6 +22,7 @@ pub trait Parser<W> {
 pub struct ParseTree<T: Term> {
     root_var: Var,
     root_var_name: Rc<str>,
+    rule_idx: usize,
     children: Vec<ParsedSymbol<T>>,
 }
 
