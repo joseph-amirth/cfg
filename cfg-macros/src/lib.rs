@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, ExprBlock, Ident, Lit, Type};
+use syn::{parse_macro_input, ExprBlock, Ident, Lit};
 
 mod parse;
 mod to_tokens;
@@ -12,9 +12,9 @@ pub fn grammar(input: TokenStream) -> TokenStream {
 }
 
 #[proc_macro]
-pub fn grammar_with_actions(input: TokenStream) -> TokenStream {
-    let grammar_with_actions = parse_macro_input!(input as GrammarWithActions);
-    quote!(#grammar_with_actions).into()
+pub fn interpreted_grammar(input: TokenStream) -> TokenStream {
+    let interpreted_grammar = parse_macro_input!(input as InterpretedGrammar);
+    quote!(#interpreted_grammar).into()
 }
 
 #[derive(Debug)]
@@ -35,15 +35,14 @@ enum Symbol {
 }
 
 #[derive(Debug)]
-struct GrammarWithActions {
-    rule_sets_with_actions: Vec<RuleSetWithActions>,
+struct InterpretedGrammar {
+    interpreted_rule_sets: Vec<InterpretedRuleSet>,
 }
 
 #[derive(Debug)]
-struct RuleSetWithActions {
+struct InterpretedRuleSet {
     head: Ident,
-    head_type: Type,
     bodies: Vec<(Vec<Symbol>, Action)>,
 }
 
-type Action = Option<ExprBlock>;
+type Action = ExprBlock;

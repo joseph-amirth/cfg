@@ -1,4 +1,4 @@
-use crate::{Grammar, GrammarWithActions, RuleSet, RuleSetWithActions, Symbol};
+use crate::{Grammar, InterpretedGrammar, InterpretedRuleSet, RuleSet, Symbol};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::LitStr;
@@ -64,14 +64,14 @@ impl ToTokens for Symbol {
     }
 }
 
-impl ToTokens for GrammarWithActions {
+impl ToTokens for InterpretedGrammar {
     fn to_tokens(&self, _tokens: &mut TokenStream) {
-        todo!();
+        todo!("ToTokens for InterpretedGrammar");
     }
 }
 
-impl ToTokens for RuleSetWithActions {
+impl ToTokens for InterpretedRuleSet {
     fn to_tokens(&self, _tokens: &mut TokenStream) {
-        todo!();
+        todo!("ToTokens for InterpretedRuleSet");
     }
 }
