@@ -28,21 +28,45 @@ struct RuleSet {
     bodies: Vec<Vec<Symbol>>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum Symbol {
     Var(Ident),
     Term(Lit),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct InterpretedGrammar {
     interpreted_rule_sets: Vec<InterpretedRuleSet>,
 }
 
-#[derive(Debug)]
+impl Into<Grammar> for InterpretedGrammar {
+    fn into(self) -> Grammar {
+        let Self {
+            interpreted_rule_sets,
+        } = self;
+        Grammar {
+            rule_sets: interpreted_rule_sets
+                .into_iter()
+                .map(|interpreted_rule_set| interpreted_rule_set.into())
+                .collect(),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
 struct InterpretedRuleSet {
     head: Ident,
     bodies: Vec<(Vec<Symbol>, Action)>,
+}
+
+impl Into<RuleSet> for InterpretedRuleSet {
+    fn into(self) -> RuleSet {
+        let Self { head, bodies } = self;
+        RuleSet {
+            head,
+            bodies: bodies.into_iter().map(|(symbols, _)| symbols).collect(),
+        }
+    }
 }
 
 type Action = ExprBlock;

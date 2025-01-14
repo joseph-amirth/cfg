@@ -3,6 +3,7 @@ use std::{fmt::Debug, hash::Hash, rc::Rc};
 use rand::{rngs::ThreadRng, seq::IteratorRandom};
 
 pub mod cnf;
+pub mod interpret;
 pub mod parse;
 
 #[derive(Debug, Clone)]

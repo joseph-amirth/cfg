@@ -20,10 +20,10 @@ pub trait Parser<W> {
 
 #[derive(Debug, Clone)]
 pub struct ParseTree<T: Term> {
-    root_var: Var,
-    root_var_name: Rc<str>,
-    rule_idx: usize,
-    children: Vec<ParsedSymbol<T>>,
+    pub(crate) root_var: Var,
+    pub(crate) root_var_name: Rc<str>,
+    pub(crate) rule_idx: usize,
+    pub(crate) children: Vec<ParsedSymbol<T>>,
 }
 
 #[derive(Debug, Clone)]
