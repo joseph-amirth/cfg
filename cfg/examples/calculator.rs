@@ -1,9 +1,6 @@
 use std::io::{stdin, stdout, Write};
 
-use cfg::{
-    interpreted_grammar,
-    parse::{EarleyParser, Parser},
-};
+use cfg::prelude::*;
 
 fn main() {
     let (cfg, interpreter) = interpreted_grammar!(

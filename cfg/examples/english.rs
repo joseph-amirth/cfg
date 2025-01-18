@@ -1,4 +1,4 @@
-use cfg::grammar;
+use cfg::prelude::*;
 
 fn main() {
     let cfg = grammar! {

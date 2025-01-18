@@ -1,7 +1,4 @@
-use cfg::{
-    grammar,
-    parse::{EarleyParser, FormatOptions, FormatStyle, Parser},
-};
+use cfg::prelude::*;
 
 fn main() {
     let cfg = grammar!(

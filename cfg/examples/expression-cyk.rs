@@ -1,9 +1,6 @@
 use std::io::{stdin, stdout, Write};
 
-use cfg::{
-    grammar,
-    parse::{CykParser, Parser},
-};
+use cfg::prelude::*;
 
 fn main() {
     let cfg = grammar!(
