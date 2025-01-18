@@ -25,6 +25,12 @@ fn main() {
 
     let parser = EarleyParser::of(cfg);
 
+    println!(
+        r"This is a calculator powered by my CFG crate.
+Only the basic arithmetic operators are supported, i.e., addition,
+subtraction, multiplication and division.
+For example, typing in `(10*3)/2+7` will produce 22."
+    );
     loop {
         print!("> ");
         stdout().flush().unwrap();
