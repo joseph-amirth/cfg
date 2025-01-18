@@ -2,7 +2,7 @@ use crate::{Grammar, InterpretedGrammar, InterpretedRuleSet, RuleSet, Symbol};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote, ToTokens, TokenStreamExt};
 use std::iter::Iterator;
-use syn::LitStr;
+use syn::{LitStr, Type};
 
 impl ToTokens for Grammar {
     fn to_tokens(&self, tokens: &mut TokenStream) {
@@ -70,20 +70,28 @@ impl ToTokens for Symbol {
 impl ToTokens for InterpretedGrammar {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let grammar: Grammar = self.to_owned().into();
-        let interpreted_rule_sets = &self.interpreted_rule_sets;
+        let term_type = &self.term_type;
+        let meaning_type = &self.meaning_type;
+        let interpreted_rule_sets = self
+            .interpreted_rule_sets
+            .iter()
+            .map(|interpreted_rule_set| interpreted_rule_set.to_tokens(term_type, meaning_type))
+            .collect::<Vec<_>>();
         tokens.append_all(quote!({
             use cfg::interpret::InterpretedSymbol;
-            let mut rules = Vec::<fn(Vec<InterpretedSymbol<char, i32>>) -> i32>::new();
+            let mut rules = Vec::<fn(Vec<InterpretedSymbol<#term_type, #meaning_type>>) -> #meaning_type>::new();
             #( #interpreted_rule_sets )*
             (#grammar, cfg::interpret::Interpreter::new(rules))
         }));
     }
 }
 
-impl ToTokens for InterpretedRuleSet {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl InterpretedRuleSet {
+    fn to_tokens(&self, term_type: &Type, meaning_type: &Type) -> TokenStream {
+        let mut tokens = TokenStream::new();
+
         let head = &self.head;
-        for (i, (symbols, action)) in self.bodies.iter().enumerate() {
+        self.bodies.iter().enumerate().map(|(i, (symbols, action))| {
             let fun_name = format_ident!("interpret_{}_{}", head, i);
             let bindings = symbols.iter().enumerate().map(|(i, symbol)| {
                 let symbol_var_name = format_ident!("_{}", i + 1);
@@ -100,9 +108,9 @@ impl ToTokens for InterpretedRuleSet {
                     }
                 }
             }).collect::<Vec<_>>();
-            tokens.append_all(quote!(
-                // TODO: Don't hardcode types here.
-                fn #fun_name(symbols: Vec<InterpretedSymbol<char, i32>>) -> i32 {
+            quote!(
+                #[allow(unused_braces)]
+                fn #fun_name(symbols: Vec<InterpretedSymbol<#term_type, #meaning_type>>) -> #meaning_type {
                     let mut symbols_iter = symbols.into_iter();
                     #(
                         #bindings
@@ -110,7 +118,9 @@ impl ToTokens for InterpretedRuleSet {
                     #action
                 }
                 rules.push(#fun_name);
-            ))
-        }
+            )
+        }).for_each(|token_stream| tokens.append_all(token_stream));
+
+        tokens
     }
 }

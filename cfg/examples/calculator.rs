@@ -1,30 +1,29 @@
 use std::io::{stdin, stdout, Write};
 
 use cfg::{
-    interpret::Interpreter,
     interpreted_grammar,
     parse::{EarleyParser, Parser},
-    Cfg,
 };
 
 fn main() {
-    let (cfg, interpreter): (Cfg<char>, Interpreter<char, i32>) = interpreted_grammar!(
+    let (cfg, interpreter) = interpreted_grammar!(
+        char, f64,
         expr => sum { _1 }
         sum => product { _1 } | product '+' sum { _1 + _3 } | product '-' sum { _1 - _3 }
         product => term { _1 } | term '*' product { _1 * _3 } | term '/' product { _1 / _3 }
         term => number { _1 } | '(' expr ')' { _2 }
-        number => digit { _1 } | number digit { _1 * 10 + _2 }
+        number => digit { _1 } | number digit { _1 * (10 as f64) + _2 }
         digit =>
-            '0' { 0 } |
-            '1' { 1 } |
-            '2' { 2 } |
-            '3' { 3 } |
-            '4' { 4 } |
-            '5' { 5 } |
-            '6' { 6 } |
-            '7' { 7 } |
-            '8' { 8 } |
-            '9' { 9 }
+            '0' { 0.0 } |
+            '1' { 1.0 } |
+            '2' { 2.0 } |
+            '3' { 3.0 } |
+            '4' { 4.0 } |
+            '5' { 5.0 } |
+            '6' { 6.0 } |
+            '7' { 7.0 } |
+            '8' { 8.0 } |
+            '9' { 9.0 }
     );
 
     let parser = EarleyParser::of(cfg);

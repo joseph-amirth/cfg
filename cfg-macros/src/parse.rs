@@ -1,7 +1,7 @@
 use crate::{Action, InterpretedGrammar, InterpretedRuleSet};
 
 use super::{Grammar, RuleSet, Symbol};
-use syn::{parse::Parse, ExprBlock, Ident, Token};
+use syn::{parse::Parse, ExprBlock, Ident, Token, Type};
 
 impl Parse for Grammar {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
@@ -57,10 +57,18 @@ impl Parse for Symbol {
 impl Parse for InterpretedGrammar {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let mut interpreted_rule_sets = Vec::new();
+
+        let term_type = input.parse::<Type>()?;
+        input.parse::<Token![,]>()?;
+        let meaning_type = input.parse::<Type>()?;
+        input.parse::<Token![,]>()?;
+
         while let Ok(interpreted_rule_set) = input.parse() {
             interpreted_rule_sets.push(interpreted_rule_set);
         }
         Ok(InterpretedGrammar {
+            term_type,
+            meaning_type,
             interpreted_rule_sets,
         })
     }

@@ -1,9 +1,11 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, ExprBlock, Ident, Lit};
+use syn::{parse_macro_input, ExprBlock, Ident, Lit, Type};
 
 mod parse;
 mod to_tokens;
+
+// TODO: Make the macros more user-friendly somehow.
 
 #[proc_macro]
 pub fn grammar(input: TokenStream) -> TokenStream {
@@ -36,6 +38,8 @@ enum Symbol {
 
 #[derive(Debug, Clone)]
 struct InterpretedGrammar {
+    term_type: Type,
+    meaning_type: Type,
     interpreted_rule_sets: Vec<InterpretedRuleSet>,
 }
 
@@ -43,6 +47,7 @@ impl Into<Grammar> for InterpretedGrammar {
     fn into(self) -> Grammar {
         let Self {
             interpreted_rule_sets,
+            ..
         } = self;
         Grammar {
             rule_sets: interpreted_rule_sets
